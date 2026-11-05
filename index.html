@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.css"/>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:Arial,Helvetica,sans-serif;color:#414042;background:#f7f8fa}
+body{font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;color:#414042;background:#f7f8fa}
 .hdr{background:#fff;border-bottom:1px solid #e3eaec;padding:12px 24px;display:flex;align-items:center;gap:20px;flex-wrap:wrap}
 .hdr-logo{height:56px;width:auto;display:block;flex-shrink:0}
 .hdr-div{width:1px;height:44px;background:#dbe5e7;flex-shrink:0}
@@ -16,10 +16,13 @@ body{font-family:Arial,Helvetica,sans-serif;color:#414042;background:#f7f8fa}
 .hdr .sub{font-size:13px;color:#6b7a7e;margin-top:3px}
 .controls{background:#f6f9fa;border-bottom:1px solid #e3eaec;padding:10px 24px;display:flex;align-items:center;justify-content:space-between;gap:12px 28px;flex-wrap:wrap}
 .ctrl{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.ctrl-group{display:flex;align-items:center;gap:10px 22px;flex-wrap:wrap}
 .ctrl-label{font-size:12px;font-weight:700;color:#5b6b70;white-space:nowrap}
-#naicsSelect{font-size:14px;color:#2d3436;border:1px solid #c9d6d9;border-radius:6px;padding:7px 32px 7px 12px;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%23006e82' stroke-width='1.6'/%3E%3C/svg%3E") no-repeat right 12px center;-webkit-appearance:none;appearance:none;cursor:pointer;width:360px;max-width:100%;outline:none}
-#naicsSelect:hover{border-color:#1896ae}
-#naicsSelect:focus{border-color:#006e82;box-shadow:0 0 0 3px rgba(0,110,130,.15)}
+.sel{font-size:14px;color:#2d3436;border:1px solid #c9d6d9;border-radius:6px;padding:7px 32px 7px 12px;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%23006e82' stroke-width='1.6'/%3E%3C/svg%3E") no-repeat right 12px center;-webkit-appearance:none;appearance:none;cursor:pointer;max-width:100%;outline:none}
+#naicsSelect{width:360px}
+#countySelect{width:250px}
+.sel:hover{border-color:#1896ae}
+.sel:focus{border-color:#006e82;box-shadow:0 0 0 3px rgba(0,110,130,.15)}
 .legend{display:flex;gap:4px 16px;flex-wrap:wrap;align-items:center}
 .leg-item{display:flex;align-items:center;gap:6px;font-size:12px;color:#414042;white-space:nowrap}
 .leg-box{width:12px;height:12px;border-radius:3px;flex-shrink:0}
@@ -44,8 +47,9 @@ body{font-family:Arial,Helvetica,sans-serif;color:#414042;background:#f7f8fa}
 .modal li{display:flex;align-items:center;gap:8px;padding:3px 0;font-size:13px}
 .modal .note{font-size:12.5px;color:#6b7a7e;margin:0}
 .leaflet-labels-pane,.leaflet-labels-pane *{pointer-events:none!important}
-@media (max-width:640px){.hdr{padding:12px 16px;gap:12px}.hdr-logo{height:42px}.hdr-div{display:none}.hdr h1{font-size:17px}.controls{padding:10px 16px}#naicsSelect{min-width:0;width:100%}.ctrl:first-child{width:100%}}
-#map-wrap{position:relative;width:100%;height:500px}
+@media (max-width:640px){.hdr{padding:12px 16px;gap:12px}.hdr-logo{height:42px}.hdr-div{display:none}.hdr h1{font-size:17px}.controls{padding:10px 16px}.ctrl-group{width:100%}.ctrl-group .ctrl{width:100%}.ctrl-group .ctrl-label{width:56px}#naicsSelect,#countySelect{min-width:0;width:auto;flex:1}}
+#map-wrap{position:relative;width:100%;height:500px;display:flex}
+#map-area{position:relative;flex:1 1 auto;min-width:0}
 #map{position:absolute;inset:0}
 #overlay{position:absolute;inset:0;background:rgba(247,248,250,.93);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;z-index:2000}
 #overlay .spin{width:36px;height:36px;border:4px solid #d8e4e6;border-top-color:#006e82;border-radius:50%;animation:spin .9s linear infinite}
@@ -58,8 +62,69 @@ body{font-family:Arial,Helvetica,sans-serif;color:#414042;background:#f7f8fa}
 .ic-row:last-of-type{border-bottom:none}
 .ic-lbl{color:#777;font-size:13px}.ic-val{font-weight:700;font-size:14px}
 .ic-badge{display:inline-block;border-radius:4px;padding:4px 12px;font-size:13px;font-weight:700;margin-top:10px}
-.ic-hint{font-size:11px;color:#bbb;margin-top:8px}
-.footer{background:#f0f4f5;border-top:1px solid #dce8ea;padding:3px 22px;font-size:10px;color:#999}
+.ic-cta{margin-top:12px;font-size:12.5px;font-weight:600;color:#006e82;background:#eef5f6;border-radius:6px;padding:7px 10px;text-align:center}
+.footer{background:#f0f4f5;border-top:1px solid #dce8ea;padding:4px 24px;font-size:10px;color:#8a979b;display:flex;flex-wrap:wrap;gap:2px 0}
+.footer>span+span{border-left:1px solid #cfdadd;margin-left:10px;padding-left:10px}
+/* County profile panel */
+#profile{display:none;flex:0 0 40%;min-width:340px;background:#fff;border-left:1px solid #e3eaec;overflow-y:auto;box-shadow:-4px 0 16px rgba(0,0,0,.04)}
+body.profile-open #profile{display:block}
+.pf{padding:20px 24px 28px}
+.pf-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.pf-eyebrow{font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:#1896ae}
+.pf h2{font-size:23px;color:#006e82;line-height:1.2;margin-top:3px}
+.pf-sub{font-size:13px;color:#6b7a7e;margin-top:2px}
+.pf-x{flex-shrink:0;width:32px;height:32px;border:none;background:#f0f5f6;border-radius:50%;font-size:19px;line-height:32px;color:#5b6b70;cursor:pointer}
+.pf-x:hover{background:#e2ecee}
+.pf-tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:18px 0 16px}
+.tile{background:#f4f8f9;border-radius:8px;padding:11px 12px}
+.tile-v{font-size:21px;font-weight:700;color:#2d3436;line-height:1.15}
+.tile-v small{font-size:13px;font-weight:600;color:#6b7a7e}
+.tile-l{font-size:11.5px;color:#6b7a7e;margin-top:3px;line-height:1.3}
+.pf-hl{font-size:13px;line-height:1.5;margin:0;padding:0;list-style:none}
+.pf-hl li{display:grid;grid-template-columns:128px minmax(0,1fr);gap:12px;padding:8px 0;border-bottom:1px solid #f0f4f5}
+.pf-hl .v b{display:block;color:#2d3436}
+.pf-hl .v small{display:block;font-size:12px;color:#6b7a7e;margin-top:1px}
+.yr{display:inline-block;margin-left:10px;font-size:11px;font-weight:600;color:#006e82;border:1px solid #bcd8dd;border-radius:10px;padding:0 8px;line-height:18px;vertical-align:1px}
+.pf-hl li:last-child{border-bottom:none}
+.pf-hl .k{color:#6b7a7e}
+.pf-h3{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#5b6b70;margin:20px 0 8px}
+.mix{display:flex;height:14px;border-radius:7px;overflow:hidden;background:#eef2f3}
+.mix span{display:block;height:100%}
+.mix span+span{border-left:2px solid #fff}
+.mix-leg{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:12px;margin-top:8px;color:#414042}
+.mix-leg b{font-variant-numeric:tabular-nums}
+.dot{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.grp{margin-top:20px;border-top:1px solid #e3eaec;padding-top:14px}
+.grp-hd{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px 12px;margin-bottom:8px}
+.grp-name{font-size:14.5px;font-weight:700;color:#2d3436}
+.grp-code{font-size:11.5px;color:#8a979b;font-weight:400;margin-left:4px}
+.grp-tot{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.gchip{font-size:12px;color:#5b6b70;background:#f4f8f9;border:1px solid #e3eaec;border-radius:6px;padding:3px 9px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.gchip b{color:#2d3436;font-weight:700}
+.rows-hd,.row{display:grid;grid-template-columns:minmax(0,1fr) 62px 54px;gap:10px;align-items:center}
+.rows-hd{font-size:10.5px;text-transform:uppercase;letter-spacing:.4px;color:#8a979b;padding:2px 8px 4px}
+.rows-hd span:not(:first-child){text-align:right}
+.row{width:100%;padding:6px 8px;border:none;border-radius:6px;background:none;font:inherit;font-size:13px;color:#414042;text-align:left;cursor:pointer}
+.row:hover{background:#f2f7f8}
+.row.cur{background:#e8f3f5;box-shadow:inset 3px 0 0 #006e82}
+.row.zero{color:#a5b0b3}
+.row-name span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row-bar{height:4px;border-radius:2px;margin-top:4px;background:#eef2f3;overflow:hidden}
+.row-bar i{display:block;height:100%;border-radius:2px}
+.row-j{text-align:right;font-variant-numeric:tabular-nums}
+.pill{justify-self:end;font-size:11.5px;font-weight:700;border-radius:10px;padding:2px 0;width:50px;text-align:center;font-variant-numeric:tabular-nums}
+.pf-note{font-size:12px;color:#6b7a7e;margin-top:20px;line-height:1.55}
+.pf-note .lq-help{font-size:12px}
+@media (max-width:760px){
+  #map-wrap{flex-direction:column}
+  body.profile-open #map-area{flex:0 0 42%}
+  #profile{flex:1 1 auto;min-width:0;border-left:none;border-top:1px solid #e3eaec}
+  .pf{padding:16px 16px 24px}
+  .tile-v{font-size:18px}
+  .info-card{min-width:0;max-width:calc(100% - 24px)}
+}
+.leaflet-tooltip.county-label{background:#1d2b2f;color:#fff;border:none;border-radius:6px;padding:5px 11px;font:700 13px/1.2 'Helvetica Neue',Helvetica,Arial,sans-serif;letter-spacing:.1px;box-shadow:0 3px 10px rgba(0,0,0,.25);white-space:nowrap}
+.leaflet-tooltip-top.county-label:before{border-top-color:#1d2b2f}
 </style>
 </head>
 <body>
@@ -69,14 +134,20 @@ body{font-family:Arial,Helvetica,sans-serif;color:#414042;background:#f7f8fa}
   <div class="hdr-div"></div>
   <div>
     <h1>North Central Appalachia Manufacturing Strength</h1>
-    <div class="sub">Where each manufacturing subsector is concentrated &middot; 210 counties in KY, MD, NY, OH, PA &amp; WV &middot; 2022 data</div>
+    <div class="sub">Where each manufacturing subsector is concentrated across 210 counties in KY, MD, NY, OH, PA and WV (2022 data)</div>
   </div>
 </header>
 
 <div class="controls">
-  <div class="ctrl">
-    <label class="ctrl-label" for="naicsSelect">Industry</label>
-    <select id="naicsSelect"></select>
+  <div class="ctrl-group">
+    <div class="ctrl">
+      <label class="ctrl-label" for="naicsSelect">Industry</label>
+      <select id="naicsSelect" class="sel"></select>
+    </div>
+    <div class="ctrl">
+      <label class="ctrl-label" for="countySelect">County</label>
+      <select id="countySelect" class="sel"></select>
+    </div>
   </div>
   <div class="ctrl">
     <span class="ctrl-label">Location quotient</span>
@@ -104,6 +175,7 @@ body{font-family:Arial,Helvetica,sans-serif;color:#414042;background:#f7f8fa}
 </div>
 
 <div id="map-wrap">
+  <div id="map-area">
   <div id="overlay"><div class="spin"></div><div class="msg" id="ovMsg">Loading county boundaries&hellip;</div></div>
   <div id="map"></div>
   <div class="info-card" id="infoCard">
@@ -112,11 +184,13 @@ body{font-family:Arial,Helvetica,sans-serif;color:#414042;background:#f7f8fa}
     <div class="ic-row"><span class="ic-lbl">Jobs</span><span class="ic-val" id="icJobs"></span></div>
     <div class="ic-row"><span class="ic-lbl">Location Quotient</span><span class="ic-val" id="icLQ"></span></div>
     <div><span class="ic-badge" id="icBadge"></span></div>
-    <div class="ic-hint">Click to pin &middot; hover to explore</div>
+    <div class="ic-cta" id="icCta">Click county to open its full profile &rarr;</div>
   </div>
+  </div>
+  <aside id="profile" aria-label="County manufacturing profile"></aside>
 </div>
 
-<div class="footer">Analysis: ReImagine Appalachia &nbsp;&middot;&nbsp; Basemap: <span id="basemapCredit">OpenFreeMap &amp; OpenStreetMap contributors</span> &nbsp;&middot;&nbsp; County boundaries: U.S. Census TIGER/Line via us-atlas@3</div>
+<div class="footer"><span>Analysis: ReImagine Appalachia</span><span>Basemap: <span id="basemapCredit">OpenFreeMap &amp; OpenStreetMap contributors</span></span><span>County boundaries: U.S. Census TIGER/Line via us-atlas@3</span></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
@@ -158,22 +232,43 @@ function setMapH(){
 setMapH();
 window.addEventListener('resize',function(){setMapH();if(window._map)window._map.invalidateSize();});
 
-/* DROPDOWN */
-var currentN='321', geolayer=null, pinned=null;
+/* DROPDOWNS */
+var currentN='321', geolayer=null, pinned=null, LAYERS={};
+var NAICS_LIST=Object.keys(INDUSTRIES).sort(function(a,b){return +a-+b;});
 (function(){
   var sel=document.getElementById('naicsSelect');
-  Object.keys(INDUSTRIES).sort(function(a,b){return+a-+b;}).forEach(function(nc){
+  NAICS_LIST.forEach(function(nc){
     var o=document.createElement('option');
     o.value=nc; o.textContent=INDUSTRIES[nc]+'  (NAICS '+nc+')';
     if(nc===currentN) o.selected=true;
     sel.appendChild(o);
   });
-  sel.addEventListener('change',function(){
-    currentN=this.value; pinned=null;
-    if(geolayer) geolayer.setStyle(styleF);
-    buildChips(); hideCard();
+  sel.addEventListener('change',function(){ setIndustry(this.value); });
+
+  /* County dropdown, grouped by state */
+  var cs=document.getElementById('countySelect');
+  cs.innerHTML='<option value="">Select a county&hellip;</option>';
+  var byState={};
+  REGION_FIPS.forEach(function(f){var m=COUNTIES_META[f]; if(!m) return; (byState[m.s]=byState[m.s]||[]).push(f);});
+  Object.keys(byState).sort(function(a,b){return STATE_NAMES[a]<STATE_NAMES[b]?-1:1;}).forEach(function(st){
+    var g=document.createElement('optgroup'); g.label=STATE_NAMES[st]||st;
+    byState[st].sort(function(a,b){return COUNTIES_META[a].n<COUNTIES_META[b].n?-1:1;}).forEach(function(f){
+      var o=document.createElement('option'); o.value=f; o.textContent=COUNTIES_META[f].n.replace(/, [A-Z]{2}$/,'');
+      g.appendChild(o);
+    });
+    cs.appendChild(g);
   });
+  cs.addEventListener('change',function(){ if(this.value) openProfile(this.value); else closeProfile(); });
 })();
+
+function setIndustry(nc){
+  currentN=nc;
+  document.getElementById('naicsSelect').value=nc;
+  if(geolayer) geolayer.setStyle(styleF);
+  buildChips(); hideCard();
+  var rows=document.querySelectorAll('#profile .row');
+  for(var i=0;i<rows.length;i++) rows[i].classList.toggle('cur',rows[i].getAttribute('data-nc')===nc);
+}
 
 /* LEGEND (colors + county counts) */
 var LEG_TXT=[['None',''],['Below U.S. avg','<1'],['Concentrated','1–10'],['Highly specialized','10–50'],['Dominant','50+']];
@@ -215,7 +310,7 @@ function showCard(fips){
   var meta=COUNTIES_META[fips]||{}, nd=MFG_DATA[currentN]||{}, rec=nd[fips]||{j:0,lq:0};
   var bkt=bucket(rec.lq);
   document.getElementById('icCounty').textContent=meta.n||fips;
-  document.getElementById('icIndustry').textContent='NAICS '+currentN+' — '+(INDUSTRIES[currentN]||'');
+  document.getElementById('icIndustry').textContent=(INDUSTRIES[currentN]||'')+' (NAICS '+currentN+')';
   document.getElementById('icJobs').textContent=rec.j>0?rec.j.toLocaleString():'Not reported';
   document.getElementById('icLQ').textContent=rec.lq>0?rec.lq.toFixed(2):'—';
   var badge=document.getElementById('icBadge');
@@ -223,6 +318,7 @@ function showCard(fips){
   badge.textContent=bi===0?'No employment reported':LEG_TXT[bi][0]+' (LQ '+LEG_TXT[bi][1]+')';
   badge.style.background=bkt.c;
   badge.style.color=(bkt.c==='#80d0d8'||bkt.c==='#77c043'||bkt.c==='#c8c8c8')?'#333':'#fff';
+  document.getElementById('icCta').innerHTML=fips===pinned?'Profile open in the side panel':'Click county to open its full profile &rarr;';
   document.getElementById('infoCard').style.display='block';
 }
 function hideCard(){document.getElementById('infoCard').style.display='none';}
@@ -230,15 +326,21 @@ function hideCard(){document.getElementById('infoCard').style.display='none';}
 /* STYLE */
 function styleF(f){
   var nd=MFG_DATA[currentN]||{}, rec=nd[f.id]||{lq:0};
-  return{fillColor:bucket(rec.lq).c, fillOpacity:0.82, color:'#fff', weight:0.6, opacity:1};
+  var st={fillColor:bucket(rec.lq).c, fillOpacity:0.82, color:'#fff', weight:0.6, opacity:1};
+  if(pinned){
+    if(f.id===pinned){st.color='#1d2b2f'; st.weight=3; st.fillOpacity=1;}
+    else {st.fillOpacity=0.28; st.opacity=0.6;}
+  }
+  return st;
 }
 
 /* MAP */
-var map=L.map('map').setView([38.8,-79.5],6);
+var map=L.map('map',{zoomSnap:0.5,zoomDelta:0.5}).setView([38.8,-79.5],6);
 window._map=map;
 /* Labels/state lines sit above the county colors and ignore the mouse */
 map.createPane('labels');
 map.getPane('labels').style.zIndex=650;
+map.getPane('tooltipPane').style.zIndex=700;
 
 /* Fallback basemap: Esri raster tiles (no key needed) */
 var basemapAdded=false;
@@ -275,6 +377,137 @@ function addEsriBasemap(){
     .catch(function(e){ console.warn('Vector basemap unavailable, using Esri', e); addEsriBasemap(); });
 })();
 
+/* COUNTY PROFILE */
+var GROUPS=[
+  {code:'31',name:'Consumer & Other Goods',c:'#f7c42a'},
+  {code:'32',name:'Building & Construction Materials',c:'#763869'},
+  {code:'33',name:'Metals & Durable Goods',c:'#d0533f'}
+];
+function rec(nc,f){return (MFG_DATA[nc]||{})[f]||{j:0,lq:0};}
+function shortName(nc){return INDUSTRIES[nc].replace(/ Manufacturing$/,'');}
+function fmt(n){return n.toLocaleString('en-US');}
+function pct(a,b){return b?Math.round(a/b*100):0;}
+var TOTALS={}, REGION_TOTAL=0;
+REGION_FIPS.forEach(function(f){
+  var t=0; NAICS_LIST.forEach(function(nc){t+=rec(nc,f).j;});
+  TOTALS[f]=t; REGION_TOTAL+=t;
+});
+var RANKED=Array.from(REGION_FIPS).sort(function(a,b){return TOTALS[b]-TOTALS[a];});
+function pill(lq){
+  var b=bucket(lq), i=BUCKETS.indexOf(b);
+  var light=(b.c==='#80d0d8'||b.c==='#77c043'||b.c==='#c8c8c8');
+  return '<span class="pill" style="background:'+b.c+';color:'+(light?'#333':'#fff')+'" title="'+LEG_TXT[i][0]+'">'+(lq>0?lq.toFixed(2):'&mdash;')+'</span>';
+}
+
+function renderProfile(f){
+  var meta=COUNTIES_META[f]||{n:f,s:''};
+  var name=meta.n.replace(/, [A-Z]{2}$/,''), total=TOTALS[f]||0, rank=RANKED.indexOf(f)+1;
+  var recs=NAICS_LIST.map(function(nc){var r=rec(nc,f); return {nc:nc,j:r.j,lq:r.lq};});
+  var spec=recs.filter(function(r){return r.lq>=1;}).length;
+  var top=recs.slice().sort(function(a,b){return b.lq-a.lq;})[0];
+  var big=recs.slice().sort(function(a,b){return b.j-a.j;})[0];
+  var maxJ=big.j||1;
+  var groups=GROUPS.map(function(g){
+    var rows=recs.filter(function(r){return r.nc.slice(0,2)===g.code;}).sort(function(a,b){return b.j-a.j||b.lq-a.lq;});
+    var gj=rows.reduce(function(t,r){return t+r.j;},0);
+    return {g:g,rows:rows,j:gj};
+  });
+
+  var h='<div class="pf">'
+   +'<div class="pf-top"><div><div class="pf-eyebrow">County manufacturing profile</div>'
+   +'<h2>'+name+'</h2><div class="pf-sub">'+(STATE_NAMES[meta.s]||meta.s)+'<span class="yr">2022 data</span></div></div>'
+   +'<button type="button" class="pf-x" id="pfClose" aria-label="Close county profile">&times;</button></div>';
+
+  h+='<div class="pf-tiles">'
+   +'<div class="tile"><div class="tile-v">'+fmt(total)+'</div><div class="tile-l">manufacturing jobs</div></div>'
+   +'<div class="tile"><div class="tile-v">'+spec+' <small>of '+NAICS_LIST.length+'</small></div><div class="tile-l">subsectors above U.S. concentration (LQ &ge; 1)</div></div>'
+   +'<div class="tile"><div class="tile-v">#'+rank+' <small>of '+RANKED.length+'</small></div><div class="tile-l">in the region by manufacturing jobs</div></div>'
+   +'</div>';
+
+  if(total>0){
+    h+='<ul class="pf-hl">'
+     +(top.lq>0?'<li><span class="k">Most specialized</span><span class="v"><b>'+shortName(top.nc)+'</b><small>LQ '+top.lq.toFixed(2)+', '+fmt(top.j)+' jobs</small></span></li>':'')
+     +'<li><span class="k">Largest employer</span><span class="v"><b>'+shortName(big.nc)+'</b><small>'+fmt(big.j)+' jobs, '+pct(big.j,total)+'% of county manufacturing</small></span></li>'
+     +'<li><span class="k">Share of region</span><span class="v"><b>'+(total/REGION_TOTAL*100).toFixed(1)+'%</b><small>of all manufacturing jobs in the 210 counties</small></span></li>'
+     +'</ul>';
+    h+='<div class="pf-h3">Jobs by manufacturing group</div><div class="mix">';
+    groups.forEach(function(G){ if(G.j) h+='<span style="width:'+(G.j/total*100)+'%;background:'+G.g.c+'" title="'+G.g.name+': '+pct(G.j,total)+'%"></span>'; });
+    h+='</div><div class="mix-leg">';
+    groups.forEach(function(G){ h+='<span><i class="dot" style="background:'+G.g.c+'"></i>'+G.g.name+' <b>'+pct(G.j,total)+'%</b></span>'; });
+    h+='</div>';
+  } else {
+    h+='<p class="pf-note" style="margin-top:0">No manufacturing employment was reported for this county in the 2022 data.</p>';
+  }
+
+  groups.forEach(function(G){
+    h+='<section class="grp"><div class="grp-hd"><div class="grp-name"><i class="dot" style="background:'+G.g.c+'"></i>'+G.g.name+'<span class="grp-code">NAICS '+G.g.code+'</span></div>'
+     +'<div class="grp-tot"><span class="gchip"><b>'+fmt(G.j)+'</b> jobs</span>'+(total?'<span class="gchip"><b>'+pct(G.j,total)+'%</b> of county</span>':'')+'</div></div>'
+     +'<div class="rows-hd"><span>Subsector</span><span>Jobs</span><span>LQ</span></div>';
+    G.rows.forEach(function(r){
+      h+='<button type="button" class="row'+(r.j||r.lq?'':' zero')+(r.nc===currentN?' cur':'')+'" data-nc="'+r.nc+'" aria-label="Color the map by '+INDUSTRIES[r.nc]+'">'
+       +'<span class="row-name"><span>'+shortName(r.nc)+'</span><span class="row-bar"><i style="width:'+(r.j/maxJ*100)+'%;background:'+G.g.c+'"></i></span></span>'
+       +'<span class="row-j">'+(r.j?fmt(r.j):'&mdash;')+'</span>'+pill(r.lq)+'</button>';
+    });
+    h+='</section>';
+  });
+
+  h+='<p class="pf-note">Jobs are 2022 county employment in each 3-digit NAICS subsector; the county total is the sum of the 21 subsectors. Bars compare each subsector with the county\'s largest. Click any subsector to color the map by it. '
+   +'<button type="button" class="lq-help" id="pfLqHelp">What is a location quotient?</button></p></div>';
+
+  var el=document.getElementById('profile');
+  el.innerHTML=h; el.scrollTop=0;
+  document.getElementById('pfClose').addEventListener('click',closeProfile);
+  document.getElementById('pfLqHelp').addEventListener('click',function(){document.getElementById('lqHelp').click();});
+  var rows=el.querySelectorAll('.row');
+  for(var i=0;i<rows.length;i++) rows[i].addEventListener('click',function(){ setIndustry(this.getAttribute('data-nc')); });
+}
+
+function openProfile(f){
+  if(!COUNTIES_META[f]) return;
+  var prev=pinned; pinned=f;
+  if(geolayer){
+    geolayer.setStyle(styleF);
+    if(LAYERS[f]) LAYERS[f].bringToFront();
+  }
+  renderProfile(f);
+  document.getElementById('countySelect').value=f;
+  document.body.classList.add('profile-open');
+  hideCard();
+  try{ history.replaceState(null,'','#county='+f); }catch(e){}
+  map.invalidateSize();
+  setCountyLabel(f);
+  if(LAYERS[f]) map.flyToBounds(LAYERS[f].getBounds(),{padding:[90,90],maxZoom:9.5,duration:0.8});
+}
+
+var countyLabel=null;
+function setCountyLabel(f){
+  if(countyLabel){ map.removeLayer(countyLabel); countyLabel=null; }
+  if(!f || !LAYERS[f]) return;
+  var b=LAYERS[f].getBounds();
+  countyLabel=L.tooltip({permanent:true,direction:'top',className:'county-label',offset:[0,-6],interactive:false})
+    .setLatLng([b.getNorth(), b.getCenter().lng])
+    .setContent(COUNTIES_META[f].n.replace(/, [A-Z]{2}$/,''))
+    .addTo(map);
+}
+
+function closeProfile(){
+  var prev=pinned; pinned=null;
+  if(geolayer) geolayer.setStyle(styleF);
+  setCountyLabel(null);
+  document.body.classList.remove('profile-open');
+  document.getElementById('countySelect').value='';
+  hideCard();
+  try{ history.replaceState(null,'',location.pathname+location.search); }catch(e){}
+  map.invalidateSize();
+  if(geolayer) map.flyToBounds(geolayer.getBounds(),{padding:[16,16],duration:0.8});
+}
+
+/* Esc closes the profile (the LQ pop-up takes priority when it is open) */
+document.addEventListener('keydown',function(e){
+  if(e.key!=='Escape' || document.getElementById('lqModal').classList.contains('open')) return;
+  if(document.body.classList.contains('profile-open')) closeProfile();
+},true);
+
 /* LOAD BOUNDARIES */
 fetch('https://cdn.jsdelivr.net/npm/us-atlas@3/counties-10m.json')
   .then(function(r){
@@ -289,28 +522,23 @@ fetch('https://cdn.jsdelivr.net/npm/us-atlas@3/counties-10m.json')
       style:styleF,
       onEachFeature:function(feature,layer){
         var fips=feature.id;
+        LAYERS[fips]=layer;
         layer.on('mouseover',function(){
-          if(fips!==pinned) layer.setStyle({weight:2,color:'#333',fillOpacity:.95});
+          if(fips!==pinned) layer.setStyle({weight:2,color:'#333',opacity:1,fillOpacity:pinned?.6:.95});
           showCard(fips);
         });
         layer.on('mouseout',function(){
-          if(fips!==pinned) geolayer.resetStyle(layer);
-          if(!pinned) hideCard();
+          geolayer.resetStyle(layer);
+          hideCard();
         });
-        layer.on('click',function(){
-          if(pinned===fips){
-            pinned=null; geolayer.resetStyle(layer); hideCard();
-          } else {
-            if(pinned){geolayer.eachLayer(function(l){if(l.feature&&l.feature.id===pinned)geolayer.resetStyle(l);});}
-            pinned=fips; layer.setStyle({weight:2.5,color:'#006e82',fillOpacity:1});
-            showCard(fips);
-          }
-        });
+        layer.on('click',function(){ openProfile(fips); });
       }
     }).addTo(map);
     map.fitBounds(geolayer.getBounds(),{padding:[16,16]});
     document.getElementById('overlay').style.display='none';
     buildChips();
+    var m=location.hash.match(/county=(\d{5})/);
+    if(m && COUNTIES_META[m[1]]) openProfile(m[1]);
   })
   .catch(function(e){
     var ov=document.getElementById('overlay');
